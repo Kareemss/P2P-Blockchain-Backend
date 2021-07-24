@@ -3,8 +3,10 @@ package main
 
 import (
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
 	// We will need these libraries:
 	//      // need to convert data into byte in order to be sent on the network, computer understands better the byte(8bits)language
 	//"crypto/sha256" //crypto library to hash the data
@@ -37,7 +39,7 @@ func main() {
 		database := connectToDb()
 
 		if !presentGenesisBlockInDb(database) {
-			genesisBlock := Block{0, t.String(), "", "", "I am the genesis block", true}
+			genesisBlock := Block{0, t.String(), "", "", Data{"I am the genesis block", "", 0, 0}, true}
 			Blockchain = append(Blockchain, genesisBlock)
 			addBlock(genesisBlock, database)
 		} else {

@@ -5,10 +5,12 @@ import (
 	// "bytes"         // need to convert data into byte in order to be sent on the network, computer understands better the byte(8bits)language
 	// "crypto/sha256" //crypto library to hash the data
 	// "strconv"       // for conversion
+	"context"
 	"time" // the time for our timestamp
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson"
 
 	// "github.com/joho/godotenv"
 	// "encoding/hex"
@@ -45,6 +47,30 @@ func makeMuxRouter() http.Handler {
 }
 
 func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
+	// bytes, err := json.MarshalIndent(Blockchain, "", "  ")
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+	// _, err = io.WriteString(w, string(bytes))
+	// if err != nil {
+	// 	return
+	// }
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	database := connectToDb()
+	collection := database.Collection("blocks")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cursor.All(ctx, &Blockchain)
+	defer cursor.Close(ctx)
+
 	bytes, err := json.MarshalIndent(Blockchain, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -56,12 +82,12 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type Message struct {
-	AllData string
-}
+// type Message struct {
+// 	AllData Data
+// }
 
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
-	var m Message
+	var m Data
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&m); err != nil {
@@ -70,7 +96,7 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], m.AllData)
+	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], m)
 	if err != nil {
 		respondWithJSON(w, r, http.StatusInternalServerError, m)
 		return
@@ -79,6 +105,10 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		newBlockchain := append(Blockchain, newBlock)
 		replaceChain(newBlockchain)
 		spew.Dump(Blockchain)
+
+		database := connectToDb()
+		addBlock(newBlock, database)
+		//spew.Dump(Blockchain)
 	}
 
 	respondWithJSON(w, r, http.StatusCreated, newBlock)

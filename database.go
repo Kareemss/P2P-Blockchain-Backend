@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	_ "log"
+	"os"
+	"time"
+
 	"github.com/davecgh/go-spew/spew"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	_ "log"
-	"os"
-	"time"
 )
 
 func connectToDb() *mongo.Database {
@@ -16,7 +17,9 @@ func connectToDb() *mongo.Database {
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
 	cluster := os.Getenv("DB_CLUSTER_ADDR")
-	uri := "mongodb+srv://" + username + ":" + password + "@" + cluster + ".bzh1l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+	//uri := "mongodb+srv://" + username + ":" + password + "@" + cluster + ".bzh1l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+	uri := "mongodb://" + username + ":" + password + "@" + cluster + "-shard-00-00.bzh1l.mongodb.net:27017," + cluster + "-shard-00-01.bzh1l.mongodb.net:27017," + cluster + "-shard-00-02.bzh1l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-hmhvdy-shard-0&authSource=admin&retryWrites=true&w=majority"
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
