@@ -57,6 +57,9 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
