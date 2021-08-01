@@ -92,6 +92,9 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	var m Data
 
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&m); err != nil {
 		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
