@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func connectToDb() *mongo.Database {
+func connectToDb(Choice string) *mongo.Database {
 	// Replace the uri string with your MongoDB deployment's connection string.
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
@@ -33,9 +33,16 @@ func connectToDb() *mongo.Database {
 	}
 	spew.Dump("Successfully connected and pinged.")
 
-	database := client.Database("Blockchain")
+	BlockchainDatabase := client.Database("Blockchain")
+	UserDatabase := client.Database("Users")
+	var Database *mongo.Database
+	if Choice == "Blockchain" {
+		Database = BlockchainDatabase
+	} else if Choice == "Users" {
+		Database = UserDatabase
+	}
 
-	return database
+	return Database
 }
 
 func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
@@ -46,6 +53,21 @@ func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
 	blocksCollection := database.Collection("blocks")
 
 	insertionResult, err := blocksCollection.InsertOne(ctx, block)
+	if err != nil {
+		panic(err)
+	}
+
+	return insertionResult
+}
+
+func AddUser(User User, database *mongo.Database) *mongo.InsertOneResult {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	Users := database.Collection("Users")
+
+	insertionResult, err := Users.InsertOne(ctx, User)
 	if err != nil {
 		panic(err)
 	}
