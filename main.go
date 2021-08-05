@@ -36,14 +36,14 @@ func main() {
 
 		// Connecting to MongoDB
 		spew.Dump("Connecting to Server")
-		database := connectToDb()
+		BlockchainDatabase := connectToDb("Blockchain")
 
-		if !presentGenesisBlockInDb(database) {
+		if !presentGenesisBlockInDb(BlockchainDatabase) {
 			genesisBlock := Block{0, t.String(), "", "", Data{"I am the genesis block", "", 0, 0}, true}
 			Blockchain = append(Blockchain, genesisBlock)
-			addBlock(genesisBlock, database)
+			addBlock(genesisBlock, BlockchainDatabase)
 		} else {
-			Blockchain = append(Blockchain, getGenesisBlockFromDb(database))
+			Blockchain = append(Blockchain, getGenesisBlockFromDb(BlockchainDatabase))
 		}
 	}()
 	log.Fatal(run())

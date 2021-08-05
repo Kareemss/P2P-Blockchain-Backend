@@ -42,7 +42,9 @@ func run() error {
 func makeMuxRouter() http.Handler {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
-	muxRouter.HandleFunc("/", handleWriteBlock).Methods("POST")
+	// muxRouter.HandleFunc("/", handleWriteBlock).Methods("POST")
+	muxRouter.HandleFunc("/", HandleWriteUser).Methods("POST")
+
 	return muxRouter
 }
 
@@ -63,8 +65,8 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	database := connectToDb()
-	collection := database.Collection("blocks")
+	BlockchainDatabase := connectToDb("Blockchain")
+	collection := BlockchainDatabase.Collection("blocks")
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -112,12 +114,32 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		replaceChain(newBlockchain)
 		spew.Dump(Blockchain)
 
-		database := connectToDb()
-		addBlock(newBlock, database)
+		BlockchainDatabase := connectToDb("Blockchain")
+		addBlock(newBlock, BlockchainDatabase)
 		//spew.Dump(Blockchain)
 	}
 
 	respondWithJSON(w, r, http.StatusCreated, newBlock)
+
+}
+
+func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
+	var NewUser User
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&NewUser); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+
+	UserDatabase := connectToDb("Users")
+	AddUser(NewUser, UserDatabase)
+
+	respondWithJSON(w, r, http.StatusCreated, NewUser)
 
 }
 
