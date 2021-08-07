@@ -42,8 +42,8 @@ func run() error {
 func makeMuxRouter() http.Handler {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
-	// muxRouter.HandleFunc("/", handleWriteBlock).Methods("POST")
-	muxRouter.HandleFunc("/", HandleWriteUser).Methods("POST")
+	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
+	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
 
 	return muxRouter
 }
