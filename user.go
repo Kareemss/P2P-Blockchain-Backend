@@ -1,7 +1,14 @@
 package main //Import the main package
-// import (
-// 		"crypto/sha256" //crypto library to hash the data
-// )
+import (
+	"context"
+	// "go.mongodb.org/mongo-driver/mongo"
+	// "go.mongodb.org/mongo-driver/mongo/options"
+	// "go.mongodb.org/mongo-driver/mongo/readpref"
+	"log"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 type User struct {
 	FullName         string `bson:"name"`
@@ -13,16 +20,28 @@ type User struct {
 	PasswordHash     string `bson:"passowrdhash"`
 }
 
-// // Prepare the Blockchain data structure :
-// type Blockchain struct {
-// 	Blocks []*Block // remember a blockchain is a series of blocks
-// }
+func ValidateUserLogin(Email string, PasswordHash string) bool {
+	var result bool
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	UserDatabase := connectToDb("Users")
+	UserCollection := UserDatabase.Collection("Users")
+	filterCursor, err := UserCollection.Find(ctx, bson.M{"email": Email})
+	if err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	var Profiles []User
+	if err = filterCursor.All(ctx, &Profiles); err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	Profile := Profiles[0]
+	if Email == Profile.Email && PasswordHash == Profile.PasswordHash {
+		result = true
+	} else {
+		result = false
+	}
 
-// type Data struct {
-// 	Seller string `bson:"seller,omitempty"`
-// 	Buyer  string `bson:"buyer,omitempty"`
-// 	Amount int    `bson:"amount,omitempty"`
-// 	Price  int    `bson:"price,omitempty"`
-// }
-
-// var Blockchain []Block
+	return result
+}

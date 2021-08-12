@@ -14,6 +14,8 @@ import (
 
 	// "github.com/joho/godotenv"
 	// "encoding/hex"
+	"crypto/sha256" //crypto library to hash the data
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log"
@@ -44,6 +46,7 @@ func makeMuxRouter() http.Handler {
 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
 	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
 	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
+	muxRouter.HandleFunc("/UserLogin", UserLogin).Methods("POST")
 
 	return muxRouter
 }
@@ -125,6 +128,11 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 
 func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 	var NewUser User
+	// PasswordHash := NewUser.Password
+	// h := sha256.New()
+	// h.Write([]byte(PasswordHash))
+	// hashed := h.Sum(nil)
+	// NewUser.Password = hex.EncodeToString(hashed)
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
@@ -135,12 +143,51 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	PasswordHash := NewUser.PasswordHash
+	h := sha256.New()
+	h.Write([]byte(PasswordHash))
+	hashed := h.Sum(nil)
+	NewUser.PasswordHash = hex.EncodeToString(hashed)
 
 	UserDatabase := connectToDb("Users")
 	AddUser(NewUser, UserDatabase)
 
 	respondWithJSON(w, r, http.StatusCreated, NewUser)
 
+}
+
+// type resultstr struct {
+// 	result bool `bson:"result,omitempty"`
+// }
+
+func UserLogin(w http.ResponseWriter, r *http.Request) {
+	var User User
+	// var result bool
+	// var result1 resultstr
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&User); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+	PasswordHash := User.PasswordHash
+	h := sha256.New()
+	h.Write([]byte(PasswordHash))
+	hashed := h.Sum(nil)
+	User.PasswordHash = hex.EncodeToString(hashed)
+	ValidateUserLogin(User.Email, User.PasswordHash)
+	// UserDatabase := connectToDb("Users")
+	// if result == true {
+	// 	result1.result = true
+	// 	addresult(result1, UserDatabase)
+	// } else {
+	// 	result1.result = false
+	// }
+
+	respondWithJSON(w, r, http.StatusCreated, User)
 }
 
 func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload interface{}) {

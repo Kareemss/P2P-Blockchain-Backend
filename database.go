@@ -74,3 +74,18 @@ func AddUser(User User, database *mongo.Database) *mongo.InsertOneResult {
 
 	return insertionResult
 }
+
+// func addresult(result resultstr, database *mongo.Database) *mongo.InsertOneResult {
+
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
+
+// 	Users := database.Collection("results")
+
+// 	insertionResult, err := Users.InsertOne(ctx, result)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return insertionResult
+// }
