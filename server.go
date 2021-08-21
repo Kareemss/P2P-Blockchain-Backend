@@ -92,10 +92,6 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// type Message struct {
-// 	AllData Data
-// }
-
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	var m Order
 
@@ -130,11 +126,6 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 
 func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 	var NewUser User
-	// PasswordHash := NewUser.Password
-	// h := sha256.New()
-	// h.Write([]byte(PasswordHash))
-	// hashed := h.Sum(nil)
-	// NewUser.Password = hex.EncodeToString(hashed)
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
@@ -158,14 +149,9 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// type resultstr struct {
-// 	result bool `bson:"result,omitempty"`
-// }
-
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var User User
-	// var result bool
-	// var result1 resultstr
+
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
@@ -182,13 +168,6 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	User.PasswordHash = hex.EncodeToString(hashed)
 	res := ValidateUserLogin(User.Email, User.PasswordHash)
 	sessionToken := uuid.NewV4().String()
-	// UserDatabase := connectToDb("Users")
-	// if result == true {
-	// 	result1.result = true
-	// 	addresult(result1, UserDatabase)
-	// } else {
-	// 	result1.result = false
-	// }
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_token",
