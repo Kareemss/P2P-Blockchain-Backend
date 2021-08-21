@@ -39,7 +39,7 @@ func main() {
 		BlockchainDatabase := connectToDb("Blockchain")
 
 		if !presentGenesisBlockInDb(BlockchainDatabase) {
-			genesisBlock := Block{0, t.String(), "", "", Data{"I am the genesis block", "", 0, 0}, true}
+			genesisBlock := Block{0, t.String(), "", "", Order{"I am the genesis block", "", "", 0, 0}, true}
 			Blockchain = append(Blockchain, genesisBlock)
 			addBlock(genesisBlock, BlockchainDatabase)
 		} else {

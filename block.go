@@ -21,7 +21,7 @@ import (
 // We will just concatenate all the data and hash it to obtain the block hash
 
 func calculateHash(block Block) string {
-	record := string(block.Index) + block.Timestamp + block.AllData.Seller + block.AllData.Buyer + string(block.AllData.Amount) + string(block.AllData.Price) + block.PrevHash
+	record := string(block.Index) + block.Timestamp + block.AllData.Issuer + block.AllData.Seller + block.AllData.Buyer + string(block.AllData.Amount) + string(block.AllData.Price) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
@@ -29,7 +29,7 @@ func calculateHash(block Block) string {
 }
 
 // Create a function for new block generation and return that block
-func generateBlock(oldBlock Block, AllData Data) (Block, error) {
+func generateBlock(oldBlock Block, AllData Order) (Block, error) {
 
 	var newBlock Block
 

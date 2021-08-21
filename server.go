@@ -95,7 +95,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 // }
 
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
-	var m Data
+	var m Order
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
@@ -178,7 +178,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	h.Write([]byte(PasswordHash))
 	hashed := h.Sum(nil)
 	User.PasswordHash = hex.EncodeToString(hashed)
-	ValidateUserLogin(User.Email, User.PasswordHash)
+	res := ValidateUserLogin(User.Email, User.PasswordHash)
 	// UserDatabase := connectToDb("Users")
 	// if result == true {
 	// 	result1.result = true
@@ -187,7 +187,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	// 	result1.result = false
 	// }
 
-	respondWithJSON(w, r, http.StatusCreated, User)
+	respondWithJSON(w, r, http.StatusCreated, res)
 }
 
 func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload interface{}) {
