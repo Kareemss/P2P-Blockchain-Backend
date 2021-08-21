@@ -91,6 +91,35 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func handleGetMarket(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	MarketDatabase := connectToDb("Market")
+	Collection := MarketDatabase.Collection("Orders")
+
+	cursor, err := Collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cursor.All(ctx, &Market)
+	defer cursor.Close(ctx)
+
+	bytes, err := json.MarshalIndent(Market, "", "  ")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_, err = io.WriteString(w, string(bytes))
+	if err != nil {
+		return
+	}
+}
 
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	var m Order

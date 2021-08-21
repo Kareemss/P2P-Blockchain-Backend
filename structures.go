@@ -24,3 +24,4 @@ type Order struct {
 }
 
 var Blockchain []Block
+var Market []Order
