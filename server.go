@@ -195,7 +195,6 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 		Value:   sessionToken,
 		Expires: time.Now().Add(120 * time.Second),
 	})
-
 	respondWithJSON(w, r, http.StatusCreated, res)
 }
 
