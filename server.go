@@ -8,6 +8,8 @@ import (
 	"context"
 	"time" // the time for our timestamp
 
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -179,6 +181,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	hashed := h.Sum(nil)
 	User.PasswordHash = hex.EncodeToString(hashed)
 	res := ValidateUserLogin(User.Email, User.PasswordHash)
+	sessionToken := uuid.NewV4().String()
 	// UserDatabase := connectToDb("Users")
 	// if result == true {
 	// 	result1.result = true
