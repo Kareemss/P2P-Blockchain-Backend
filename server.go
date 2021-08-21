@@ -6,6 +6,7 @@ import (
 	// "crypto/sha256" //crypto library to hash the data
 	// "strconv"       // for conversion
 	"context"
+	uuid "github.com/satori/go.uuid"
 	"time" // the time for our timestamp
 
 	"github.com/davecgh/go-spew/spew"
@@ -179,6 +180,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	hashed := h.Sum(nil)
 	User.PasswordHash = hex.EncodeToString(hashed)
 	ValidateUserLogin(User.Email, User.PasswordHash)
+	sessionToken := uuid.NewV4().String()
 	// UserDatabase := connectToDb("Users")
 	// if result == true {
 	// 	result1.result = true
