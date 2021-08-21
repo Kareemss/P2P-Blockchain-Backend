@@ -190,6 +190,12 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	// 	result1.result = false
 	// }
 
+	http.SetCookie(w, &http.Cookie{
+		Name:    "session_token",
+		Value:   sessionToken,
+		Expires: time.Now().Add(120 * time.Second),
+	})
+
 	respondWithJSON(w, r, http.StatusCreated, res)
 }
 
