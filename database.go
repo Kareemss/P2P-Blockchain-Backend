@@ -35,11 +35,14 @@ func connectToDb(Choice string) *mongo.Database {
 
 	BlockchainDatabase := client.Database("Blockchain")
 	UserDatabase := client.Database("Users")
+	MarketDatabase := client.Database("Market")
 	var Database *mongo.Database
 	if Choice == "Blockchain" {
 		Database = BlockchainDatabase
 	} else if Choice == "Users" {
 		Database = UserDatabase
+	} else if Choice == "Market" {
+		Database = MarketDatabase
 	}
 
 	return Database

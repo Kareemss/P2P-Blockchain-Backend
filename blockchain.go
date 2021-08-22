@@ -9,6 +9,12 @@ package main
 
 /* Create the function that returns the whole blockchain and add the genesis to it first. the genesis block is the first ever mined block, so let's create a function that will return it since it does not exist yet */
 
+func ValidateBlockchain(Blockchain []Block) {
+	for i := 0; i < len(Blockchain); i++ {
+
+	}
+}
+
 func replaceChain(newBlocks []Block) {
 	if len(newBlocks) > len(Blockchain) {
 		Blockchain = newBlocks
