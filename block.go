@@ -46,18 +46,18 @@ func generateBlock(oldBlock Block, AllData Order) (Block, error) {
 
 /* let's now create the genesis block function that will return the first block. The genesis block is the first block on the chain */
 
-func isBlockValid(newBlock, oldBlock Block) bool {
+func isBlockValid(newBlock, oldBlock Block) (bool, int) {
 	if oldBlock.Index+1 != newBlock.Index {
-		return false
+		return false, 1
 	}
 
 	if oldBlock.Hash != newBlock.PrevHash {
-		return false
+		return false, 2
 	}
 
 	if calculateHash(newBlock) != newBlock.Hash {
-		return false
+		return false, 3
 	}
 
-	return true
+	return true, 0
 }

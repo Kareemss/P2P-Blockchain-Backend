@@ -78,17 +78,17 @@ func AddUser(User User, database *mongo.Database) *mongo.InsertOneResult {
 	return insertionResult
 }
 
-// func addresult(result resultstr, database *mongo.Database) *mongo.InsertOneResult {
+func AddOrder(Order Order, database *mongo.Database) *mongo.InsertOneResult {
 
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-// 	Users := database.Collection("results")
+	Users := database.Collection("Orders")
 
-// 	insertionResult, err := Users.InsertOne(ctx, result)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	insertionResult, err := Users.InsertOne(ctx, Order)
+	if err != nil {
+		panic(err)
+	}
 
-// 	return insertionResult
-// }
+	return insertionResult
+}

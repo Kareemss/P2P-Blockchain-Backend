@@ -49,6 +49,7 @@ func makeMuxRouter() http.Handler {
 	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
 	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
 	muxRouter.HandleFunc("/UserLogin", UserLogin).Methods("POST")
+	muxRouter.HandleFunc("/Market", handleGetMarket).Methods("GET")
 
 	return muxRouter
 }
@@ -139,7 +140,8 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, r, http.StatusInternalServerError, m)
 		return
 	}
-	if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
+	res, _ := isBlockValid(newBlock, Blockchain[len(Blockchain)-1])
+	if res {
 		newBlockchain := append(Blockchain, newBlock)
 		replaceChain(newBlockchain)
 		spew.Dump(Blockchain)
@@ -175,6 +177,25 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 	AddUser(NewUser, UserDatabase)
 
 	respondWithJSON(w, r, http.StatusCreated, NewUser)
+
+}
+func HandleWriteOrder(w http.ResponseWriter, r *http.Request) {
+	var NewOrder Order
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&NewOrder); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+
+	MarketDatabase := connectToDb("Market")
+	AddOrder(NewOrder, MarketDatabase)
+
+	respondWithJSON(w, r, http.StatusCreated, NewOrder)
 
 }
 
