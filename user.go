@@ -15,7 +15,7 @@ type User struct {
 	ID               string `bson:"id,omitempty"`
 	PhoneNumber      int    `bson:"phone"`
 	Email            string `bson:"email"`
-	Address          string `bson:"address,omitempty"`
+	UserName         string `bson:"address,omitempty"`
 	SmartMeterNumber int    `bson:"smart-meter-number,omitempty"`
 	PasswordHash     string `bson:"passowrd-hash,omitempty"`
 	AddressHash      string `bson:"address-hash,omitempty"`
