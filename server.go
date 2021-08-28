@@ -49,6 +49,7 @@ func makeMuxRouter() http.Handler {
 	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
 	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
 	muxRouter.HandleFunc("/UserLogin", UserLogin).Methods("POST")
+	muxRouter.HandleFunc("/WriteOrder", HandleWriteOrder).Methods("POST")
 	muxRouter.HandleFunc("/Market", handleGetMarket).Methods("GET")
 
 	return muxRouter
