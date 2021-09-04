@@ -8,52 +8,67 @@ import (
 	"context"
 	"time" // the time for our timestamp
 
-	uuid "github.com/satori/go.uuid"
+	// uuid "github.com/satori/go.uuid"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/gorilla/mux"
+
 	"go.mongodb.org/mongo-driver/bson"
 
-	// "github.com/joho/godotenv"
-	// "encoding/hex"
 	"crypto/sha256" //crypto library to hash the data
 	"encoding/hex"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
-	"os"
 )
 
 func run() error {
-	mux := makeMuxRouter()
-	httpAddr := os.Getenv("PORT")
-	log.Println("Listening on ", os.Getenv("PORT"))
-	s := &http.Server{
-		Addr:           ":" + httpAddr,
-		Handler:        mux,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
+	// initCache()
+	http.HandleFunc("/", handleGetBlockchain)
+	http.HandleFunc("/WriteBlock", handleWriteBlock)
+	http.HandleFunc("/WriteUser", HandleWriteUser)
+	http.HandleFunc("/UserLogin", UserLogin)
+	http.HandleFunc("/WriteOrder", HandleWriteOrder)
+	http.HandleFunc("/Market", handleGetMarket)
 
-	if err := s.ListenAndServe(); err != nil {
-		return err
-	}
-
+	// httpAddr := os.Getenv("PORT")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 	return nil
 }
-func makeMuxRouter() http.Handler {
-	muxRouter := mux.NewRouter()
-	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
-	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
-	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
-	muxRouter.HandleFunc("/UserLogin", UserLogin).Methods("POST")
-	muxRouter.HandleFunc("/WriteOrder", HandleWriteOrder).Methods("POST")
-	muxRouter.HandleFunc("/Market", handleGetMarket).Methods("GET")
 
-	return muxRouter
-}
+// func run() error {
+// 	initCache()
+// 	mux := makeMuxRouter()
+// 	httpAddr := os.Getenv("PORT")
+// 	log.Println("Listening on ", os.Getenv("PORT"))
+// 	s := &http.Server{
+// 		Addr:           ":" + httpAddr,
+// 		Handler:        mux,
+// 		ReadTimeout:    10 * time.Second,
+// 		WriteTimeout:   10 * time.Second,
+// 		MaxHeaderBytes: 1 << 20,
+// 	}
+
+// 	if err := s.ListenAndServe(); err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// func makeMuxRouter() http.Handler {
+
+// 	muxRouter := mux.NewRouter()
+// 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
+// 	muxRouter.HandleFunc("/WriteBlock", handleWriteBlock).Methods("POST")
+// 	muxRouter.HandleFunc("/WriteUser", HandleWriteUser).Methods("POST")
+// 	muxRouter.HandleFunc("/UserLogin", UserLogin)
+// 	muxRouter.HandleFunc("/WriteOrder", HandleWriteOrder).Methods("POST")
+// 	muxRouter.HandleFunc("/Market", handleGetMarket).Methods("GET")
+// 	// muxRouter.HandleFunc("/welcome", HandleWelcome)
+
+// 	return muxRouter
+// }
 
 func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	// bytes, err := json.MarshalIndent(Blockchain, "", "  ")
@@ -200,14 +215,20 @@ func HandleWriteOrder(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type response struct {
+	Email        string
+	PasswordHash string
+	Res          bool
+}
+
 func UserLogin(w http.ResponseWriter, r *http.Request) {
 	var User User
-
+	var Response response
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&User); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&User)
+	if err != nil {
 		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
 		return
 	}
@@ -217,15 +238,11 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	h.Write([]byte(PasswordHash))
 	hashed := h.Sum(nil)
 	User.PasswordHash = hex.EncodeToString(hashed)
-	res := ValidateUserLogin(User.Email, User.PasswordHash)
-	sessionToken := uuid.NewV4().String()
+	Response.Res = ValidateUserLogin(User.Email, User.PasswordHash)
+	Response.Email = User.Email
+	Response.PasswordHash = User.PasswordHash
 
-	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
-		Value:   sessionToken,
-		Expires: time.Now().Add(120 * time.Second),
-	})
-	respondWithJSON(w, r, http.StatusCreated, res)
+	respondWithJSON(w, r, http.StatusCreated, Response)
 }
 
 func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload interface{}) {
