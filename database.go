@@ -53,7 +53,7 @@ func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	blocksCollection := database.Collection("blocks")
+	blocksCollection := database.Collection("Blocks")
 
 	insertionResult, err := blocksCollection.InsertOne(ctx, block)
 	if err != nil {

@@ -30,6 +30,7 @@ func run() error {
 	http.HandleFunc("/UserLogin", UserLogin)
 	http.HandleFunc("/WriteOrder", HandleWriteOrder)
 	http.HandleFunc("/Market", handleGetMarket)
+	http.HandleFunc("/Delete", HandleDeleteFromDB)
 
 	// httpAddr := os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -88,7 +89,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	BlockchainDatabase := connectToDb("Blockchain")
-	collection := BlockchainDatabase.Collection("blocks")
+	collection := BlockchainDatabase.Collection("Blocks")
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -212,6 +213,29 @@ func HandleWriteOrder(w http.ResponseWriter, r *http.Request) {
 	AddOrder(NewOrder, MarketDatabase)
 
 	respondWithJSON(w, r, http.StatusCreated, NewOrder)
+
+}
+
+func HandleDeleteFromDB(w http.ResponseWriter, r *http.Request) {
+	var Deletion DeleteQuery
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&Deletion); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+	var res interface{}
+	if Deletion.DeletionType == 1 {
+		res = DeleteOneFromDB(Deletion.Database, Deletion.Collection, Deletion.Query, Deletion.Condition)
+	} else if Deletion.DeletionType == 2 {
+		DeleteCollection(Deletion.Database, Deletion.Collection)
+	}
+
+	respondWithJSON(w, r, http.StatusCreated, res)
 
 }
 

@@ -40,6 +40,7 @@ func main() {
 
 		if !presentGenesisBlockInDb(BlockchainDatabase) {
 			genesisBlock := Block{0, t.String(), "", "", Order{"I am the genesis block", "", "", 0, 0}, true}
+			genesisBlock.Hash = calculateHash(genesisBlock)
 			Blockchain = append(Blockchain, genesisBlock)
 			addBlock(genesisBlock, BlockchainDatabase)
 		} else {
@@ -55,7 +56,7 @@ func getGenesisBlockFromDb(database *mongo.Database) Block {
 
 	var blocks []Block
 
-	cursor, err := database.Collection("blocks").Find(ctx, bson.M{"is-genesis": bson.D{{"$eq", true}}})
+	cursor, err := database.Collection("Blocks").Find(ctx, bson.M{"is-genesis": bson.D{{"$eq", true}}})
 
 	if err != nil {
 		panic(err)
@@ -74,7 +75,7 @@ func presentGenesisBlockInDb(database *mongo.Database) bool {
 
 	var blocks []Block
 
-	cursor, err := database.Collection("blocks").Find(ctx, bson.M{"is-genesis": bson.D{{"$exists", true}}})
+	cursor, err := database.Collection("Blocks").Find(ctx, bson.M{"is-genesis": bson.D{{"$exists", true}}})
 
 	if err != nil {
 		panic(err)
