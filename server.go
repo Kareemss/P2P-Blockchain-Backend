@@ -31,6 +31,7 @@ func run() error {
 	http.HandleFunc("/WriteOrder", HandleWriteOrder)
 	http.HandleFunc("/Market", handleGetMarket)
 	http.HandleFunc("/Delete", HandleDeleteFromDB)
+	http.HandleFunc("/AddBalance", HandleAddBalance)
 
 	// httpAddr := os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -235,6 +236,22 @@ func HandleDeleteFromDB(w http.ResponseWriter, r *http.Request) {
 		DeleteCollection(Deletion.Database, Deletion.Collection)
 	}
 
+	respondWithJSON(w, r, http.StatusCreated, res)
+
+}
+func HandleAddBalance(w http.ResponseWriter, r *http.Request) {
+	var UpdateBalance UpdateBalanceQuery
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&UpdateBalance); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+	res := AddBalance(UpdateBalance.Email, UpdateBalance.Asset, UpdateBalance.Balance)
 	respondWithJSON(w, r, http.StatusCreated, res)
 
 }

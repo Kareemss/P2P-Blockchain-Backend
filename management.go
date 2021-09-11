@@ -22,6 +22,11 @@ type DeleteQuery struct {
 	// 1: Document
 	// 2: Collection
 }
+type UpdateBalanceQuery struct {
+	Email   string
+	Asset   string
+	Balance int
+}
 
 func DeleteOneFromDB(Database string, Collection string, Query string, Condition interface{}) *mongo.DeleteResult {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -43,4 +48,45 @@ func DeleteCollection(Database string, Collection string) {
 		log.Fatal(err)
 	}
 
+}
+func UpdateFromDB(Database string, Collection string,
+	Query string, Condition interface{}, Field string,
+	NewValue interface{}) *mongo.UpdateResult {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	DDatabase := connectToDb(Database)
+	DCollection := DDatabase.Collection(Collection)
+	result, err := DCollection.UpdateOne(
+		ctx,
+		bson.M{Query: Condition},
+		bson.D{
+			{"$set", bson.D{{Field, NewValue}}},
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
+}
+func AddBalance(Email string, Asset string, Balance int) *mongo.UpdateResult {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	UserDatabase := connectToDb("Users")
+	UserCollection := UserDatabase.Collection("Users")
+	filterCursor, err := UserCollection.Find(ctx, bson.M{"email": Email})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var Profiles []User
+	if err = filterCursor.All(ctx, &Profiles); err != nil {
+		log.Fatal(err)
+	}
+	Profile := Profiles[0]
+	if Asset == "energy-balance" {
+		Balance = Balance + Profile.EnergyBalance
+	} else if Asset == "currency-balance" {
+		Balance = Balance + Profile.CurrencyBalance
+	}
+	result := UpdateFromDB("Users", "Users", "email", Email, Asset, Balance)
+	return result
 }

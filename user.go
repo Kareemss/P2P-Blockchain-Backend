@@ -19,8 +19,8 @@ type User struct {
 	SmartMeterNumber int    `bson:"smart-meter-number,omitempty"`
 	PasswordHash     string `bson:"passowrd-hash,omitempty"`
 	AddressHash      string `bson:"address-hash,omitempty"`
-	EnergyAmount     int    `bson:"energy-amount,omitempty"`
-	CurrencyAmount   int    `bson:"currency-amount,omitempty"`
+	EnergyBalance    int    `bson:"energy-balance,omitempty"`
+	CurrencyBalance  int    `bson:"currency-balance,omitempty"`
 }
 
 func ValidateUserLogin(Email string, PasswordHash string) bool {
