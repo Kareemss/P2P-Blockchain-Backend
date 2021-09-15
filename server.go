@@ -26,6 +26,7 @@ func run() error {
 	http.HandleFunc("/Market", handleGetMarket)
 	http.HandleFunc("/Delete", HandleDeleteFromDB)
 	http.HandleFunc("/AddBalance", HandleAddBalance)
+	http.HandleFunc("/GetUser", HandleGetUser)
 
 	// httpAddr := os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -151,7 +152,6 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 
 func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	var NewUser User
-
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
@@ -162,8 +162,7 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	UserDatabase := connectToDb("Users")
-	AddUser(NewUser, UserDatabase)
+	NewUser, _ = GetUser(NewUser.Email)
 
 	respondWithJSON(w, r, http.StatusCreated, NewUser)
 

@@ -23,7 +23,7 @@ type User struct {
 	CurrencyBalance  int    `bson:"currency-balance,omitempty"`
 }
 
-func ValidateUserLogin(Email string, PasswordHash string) bool {
+func GetUser(Email string) (User, bool) {
 	var result bool
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -40,6 +40,11 @@ func ValidateUserLogin(Email string, PasswordHash string) bool {
 		result = false
 	}
 	Profile := Profiles[0]
+	return Profile, result
+}
+
+func ValidateUserLogin(Email string, PasswordHash string) bool {
+	Profile, result := GetUser(Email)
 	if Email == Profile.Email && PasswordHash == Profile.PasswordHash {
 		result = true
 	} else {
