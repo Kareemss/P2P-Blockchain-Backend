@@ -25,7 +25,7 @@ type DeleteQuery struct {
 type UpdateBalanceQuery struct {
 	Email   string
 	Asset   string
-	Balance int
+	Balance float32
 }
 
 func DeleteDocFromDB(Database string, Collection string,
@@ -69,7 +69,7 @@ func UpdateFromDB(Database string, Collection string,
 	}
 	return result
 }
-func AddBalance(Email string, Asset string, Balance int) *mongo.UpdateResult {
+func AddBalance(Email string, Asset string, Balance float32) *mongo.UpdateResult {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	UserDatabase := connectToDb("Users")

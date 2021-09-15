@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/sha256" //crypto library to hash the data
 	"encoding/hex"
+	"fmt"
+	"strconv"
 	"time" // the time for our timestamp
 )
 
@@ -10,10 +12,11 @@ import (
 // We will just concatenate all the data and hash it to obtain the block hash
 
 func calculateHash(block Block) string {
-	record := string(block.Index) + block.Timestamp +
+	record := strconv.Itoa(block.Index) + block.Timestamp +
 		block.AllData.Issuer + block.AllData.Seller +
-		block.AllData.Buyer + string(block.AllData.Amount) +
-		string(block.AllData.Price) + block.PrevHash
+		block.AllData.Buyer +
+		fmt.Sprintf("%f", block.AllData.Amount) +
+		fmt.Sprintf("%f", block.AllData.Price) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)

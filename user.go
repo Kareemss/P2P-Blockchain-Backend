@@ -11,16 +11,16 @@ import (
 )
 
 type User struct {
-	FullName         string `bson:"name"`
-	ID               string `bson:"id,omitempty"`
-	PhoneNumber      int    `bson:"phone"`
-	Email            string `bson:"email"`
-	UserName         string `bson:"address,omitempty"`
-	SmartMeterNumber int    `bson:"smart-meter-number,omitempty"`
-	PasswordHash     string `bson:"passowrd-hash,omitempty"`
-	Address          string `bson:"address-hash,omitempty"`
-	EnergyBalance    int    `bson:"energy-balance,omitempty"`
-	CurrencyBalance  int    `bson:"currency-balance,omitempty"`
+	FullName         string  `bson:"name"`
+	ID               string  `bson:"id,omitempty"`
+	PhoneNumber      int     `bson:"phone"`
+	Email            string  `bson:"email"`
+	UserName         string  `bson:"address,omitempty"`
+	SmartMeterNumber int     `bson:"smart-meter-number,omitempty"`
+	PasswordHash     string  `bson:"passowrd-hash,omitempty"`
+	Address          string  `bson:"address-hash,omitempty"`
+	EnergyBalance    float32 `bson:"energy-balance,omitempty"`
+	CurrencyBalance  float32 `bson:"currency-balance,omitempty"`
 }
 
 func GetUser(Email string) (User, bool) {
