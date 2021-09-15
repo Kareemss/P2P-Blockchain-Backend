@@ -1,27 +1,19 @@
 package main
 
 import (
-	// We will need these libraries:
-	//"bytes"         // need to convert data into byte in order to be sent on the network, computer understands better the byte(8bits)language
 	"crypto/sha256" //crypto library to hash the data
-	//"strconv"       // for conversion
-	"time" // the time for our timestamp
-	//"github.com/davecgh/go-spew/spew"
-	//"github.com/gorilla/mux"
-	//"github.com/joho/godotenv"
 	"encoding/hex"
-	//"encoding/json"
-	//"io"
-	//"log"
-	//"net/http"
-	//"os"
+	"time" // the time for our timestamp
 )
 
 // Now let's create a method for generating a hash of the block
 // We will just concatenate all the data and hash it to obtain the block hash
 
 func calculateHash(block Block) string {
-	record := string(block.Index) + block.Timestamp + block.AllData.Issuer + block.AllData.Seller + block.AllData.Buyer + string(block.AllData.Amount) + string(block.AllData.Price) + block.PrevHash
+	record := string(block.Index) + block.Timestamp +
+		block.AllData.Issuer + block.AllData.Seller +
+		block.AllData.Buyer + string(block.AllData.Amount) +
+		string(block.AllData.Price) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
@@ -43,8 +35,6 @@ func generateBlock(oldBlock Block, AllData Order) (Block, error) {
 
 	return newBlock, nil
 }
-
-/* let's now create the genesis block function that will return the first block. The genesis block is the first block on the chain */
 
 func isBlockValid(newBlock, oldBlock Block) (bool, int) {
 	if oldBlock.Index+1 != newBlock.Index {

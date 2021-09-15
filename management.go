@@ -28,7 +28,8 @@ type UpdateBalanceQuery struct {
 	Balance int
 }
 
-func DeleteOneFromDB(Database string, Collection string, Query string, Condition interface{}) *mongo.DeleteResult {
+func DeleteDocFromDB(Database string, Collection string,
+	Query string, Condition interface{}) *mongo.DeleteResult {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	DDatabase := connectToDb(Database)

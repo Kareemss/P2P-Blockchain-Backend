@@ -18,7 +18,9 @@ func connectToDb(Choice string) *mongo.Database {
 	password := os.Getenv("DB_PASSWORD")
 	cluster := os.Getenv("DB_CLUSTER_ADDR")
 	//uri := "mongodb+srv://" + username + ":" + password + "@" + cluster + ".bzh1l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-	uri := "mongodb://" + username + ":" + password + "@" + cluster + "-shard-00-00.bzh1l.mongodb.net:27017," + cluster + "-shard-00-01.bzh1l.mongodb.net:27017," + cluster + "-shard-00-02.bzh1l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-hmhvdy-shard-0&authSource=admin&retryWrites=true&w=majority"
+	uri := "mongodb://" + username + ":" + password + "@" + cluster +
+		"-shard-00-00.bzh1l.mongodb.net:27017," + cluster + "-shard-00-01.bzh1l.mongodb.net:27017," + cluster +
+		"-shard-00-02.bzh1l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-hmhvdy-shard-0&authSource=admin&retryWrites=true&w=majority"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
