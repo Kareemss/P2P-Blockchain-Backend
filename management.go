@@ -70,19 +70,7 @@ func UpdateFromDB(Database string, Collection string,
 	return result
 }
 func AddBalance(Email string, Asset string, Balance float32) *mongo.UpdateResult {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	UserDatabase := connectToDb("Users")
-	UserCollection := UserDatabase.Collection("Users")
-	filterCursor, err := UserCollection.Find(ctx, bson.M{"email": Email})
-	if err != nil {
-		log.Fatal(err)
-	}
-	var Profiles []User
-	if err = filterCursor.All(ctx, &Profiles); err != nil {
-		log.Fatal(err)
-	}
-	Profile := Profiles[0]
+	Profile, _ := GetUser(1, Email)
 	if Asset == "energy-balance" {
 		Balance = Balance + Profile.EnergyBalance
 	} else if Asset == "currency-balance" {
