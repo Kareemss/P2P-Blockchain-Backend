@@ -40,6 +40,7 @@ func DeleteDocFromDB(Database string, Collection string,
 	}
 	return result
 }
+
 func DeleteCollection(Database string, Collection string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -50,6 +51,7 @@ func DeleteCollection(Database string, Collection string) {
 	}
 
 }
+
 func UpdateFromDB(Database string, Collection string,
 	Query string, Condition interface{}, Field string,
 	NewValue interface{}) *mongo.UpdateResult {
@@ -78,4 +80,24 @@ func AddBalance(Email string, Asset string, Balance float32) *mongo.UpdateResult
 	}
 	result := UpdateFromDB("Users", "Users", "email", Email, Asset, Balance)
 	return result
+}
+
+func GetOrder(Issuer string) (Order, bool) {
+	var result bool
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	MarketDB := connectToDb("Market")
+	OrderCollection := MarketDB.Collection("Orders")
+	filterCursor, err := OrderCollection.Find(ctx, bson.M{"issuer": Issuer})
+	if err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	var Orders []Order
+	if err = filterCursor.All(ctx, &Orders); err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	Order := Orders[0]
+	return Order, result
 }
