@@ -26,6 +26,7 @@ func run() error {
 	http.HandleFunc("/Market", handleGetMarket)
 	http.HandleFunc("/Delete", HandleDeleteFromDB)
 	http.HandleFunc("/AddBalance", HandleAddBalance)
+	http.HandleFunc("/GetUser", HandleGetUser)
 
 	// httpAddr := os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -92,21 +93,21 @@ func handleGetMarket(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
-	var m Order
+	var Transaction Order
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&m); err != nil {
+	if err := decoder.Decode(&Transaction); err != nil {
 		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
 		return
 	}
 	defer r.Body.Close()
-
-	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], m)
+	TransactionSmartContract(Transaction)
+	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], Transaction)
 	if err != nil {
-		respondWithJSON(w, r, http.StatusInternalServerError, m)
+		respondWithJSON(w, r, http.StatusInternalServerError, Transaction)
 		return
 	}
 	res, _ := isBlockValid(newBlock, Blockchain[len(Blockchain)-1])
@@ -151,7 +152,6 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 
 func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	var NewUser User
-
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
@@ -162,8 +162,7 @@ func HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	UserDatabase := connectToDb("Users")
-	AddUser(NewUser, UserDatabase)
+	NewUser, _ = GetUser(1, NewUser.Email)
 
 	respondWithJSON(w, r, http.StatusCreated, NewUser)
 

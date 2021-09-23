@@ -25,7 +25,7 @@ type DeleteQuery struct {
 type UpdateBalanceQuery struct {
 	Email   string
 	Asset   string
-	Balance int
+	Balance float32
 }
 
 func DeleteDocFromDB(Database string, Collection string,
@@ -40,6 +40,7 @@ func DeleteDocFromDB(Database string, Collection string,
 	}
 	return result
 }
+
 func DeleteCollection(Database string, Collection string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -50,6 +51,7 @@ func DeleteCollection(Database string, Collection string) {
 	}
 
 }
+
 func UpdateFromDB(Database string, Collection string,
 	Query string, Condition interface{}, Field string,
 	NewValue interface{}) *mongo.UpdateResult {
@@ -69,20 +71,8 @@ func UpdateFromDB(Database string, Collection string,
 	}
 	return result
 }
-func AddBalance(Email string, Asset string, Balance int) *mongo.UpdateResult {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	UserDatabase := connectToDb("Users")
-	UserCollection := UserDatabase.Collection("Users")
-	filterCursor, err := UserCollection.Find(ctx, bson.M{"email": Email})
-	if err != nil {
-		log.Fatal(err)
-	}
-	var Profiles []User
-	if err = filterCursor.All(ctx, &Profiles); err != nil {
-		log.Fatal(err)
-	}
-	Profile := Profiles[0]
+func AddBalance(Email string, Asset string, Balance float32) *mongo.UpdateResult {
+	Profile, _ := GetUser(1, Email)
 	if Asset == "energy-balance" {
 		Balance = Balance + Profile.EnergyBalance
 	} else if Asset == "currency-balance" {
@@ -90,4 +80,24 @@ func AddBalance(Email string, Asset string, Balance int) *mongo.UpdateResult {
 	}
 	result := UpdateFromDB("Users", "Users", "email", Email, Asset, Balance)
 	return result
+}
+
+func GetOrder(Issuer string) (Order, bool) {
+	var result bool
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	MarketDB := connectToDb("Market")
+	OrderCollection := MarketDB.Collection("Orders")
+	filterCursor, err := OrderCollection.Find(ctx, bson.M{"issuer": Issuer})
+	if err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	var Orders []Order
+	if err = filterCursor.All(ctx, &Orders); err != nil {
+		log.Fatal(err)
+		result = false
+	}
+	Order := Orders[0]
+	return Order, result
 }
