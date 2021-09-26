@@ -12,7 +12,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func connectToDb(Choice string) *mongo.Database {
+type MongoParam struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+	client *mongo.Client
+}
+
+var mongoparameters MongoParam
+
+func mongoconnect() {
 	// Replace the uri string with your MongoDB deployment's connection string.
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
@@ -34,10 +42,15 @@ func connectToDb(Choice string) *mongo.Database {
 		panic(err)
 	}
 	spew.Dump("Successfully connected and pinged.")
+	mongoparameters.ctx = ctx
+	mongoparameters.cancel = cancel
+	mongoparameters.client = client
+}
+func connectToDb(Choice string) *mongo.Database {
 
-	BlockchainDatabase := client.Database("Blockchain")
-	UserDatabase := client.Database("Users")
-	MarketDatabase := client.Database("Market")
+	BlockchainDatabase := mongoparameters.client.Database("Blockchain")
+	UserDatabase := mongoparameters.client.Database("Users")
+	MarketDatabase := mongoparameters.client.Database("Market")
 	var Database *mongo.Database
 	if Choice == "Blockchain" {
 		Database = BlockchainDatabase

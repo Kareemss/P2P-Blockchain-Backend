@@ -10,6 +10,8 @@ func TransactionSmartContract(Transaction Order) {
 	AddBalance(BuyerProfile.Email, "energy-balance", Transaction.Amount)
 	AddBalance(BuyerProfile.Email, "currency-balance", -value)
 	UpdateOrder(Transaction.Issuer, Transaction.Amount)
+	SellerProfile.CompletedTransaction += 1
+	BuyerProfile.CompletedTransaction += 1
 }
 
 func UpdateOrder(Issuer string, TAmount float32) {

@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	mongoconnect()
 	go func() {
 		t := time.Now()
 
