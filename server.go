@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time" // the time for our timestamp
 
 	"github.com/davecgh/go-spew/spew"
@@ -29,7 +30,7 @@ func run() error {
 	http.HandleFunc("/GetUser", HandleGetUser)
 
 	// httpAddr := os.Getenv("PORT")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
 	return nil
 }
 
