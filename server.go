@@ -30,7 +30,8 @@ func run() error {
 	http.HandleFunc("/GetUser", HandleGetUser)
 
 	// httpAddr := os.Getenv("PORT")
-	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
+	// log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 	return nil
 }
 
