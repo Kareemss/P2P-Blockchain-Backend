@@ -16,11 +16,12 @@ type Block struct {
 // }
 
 type Order struct {
-	Issuer string  `bson:"issuer,omitempty"`
-	Seller string  `bson:"seller,omitempty"`
-	Buyer  string  `bson:"buyer,omitempty"`
-	Amount float32 `bson:"amount,omitempty"`
-	Price  float32 `bson:"price,omitempty"`
+	OrderID int     `bson:"_id"`
+	Issuer  string  `bson:"issuer,omitempty"`
+	Seller  string  `bson:"seller,omitempty"`
+	Buyer   string  `bson:"buyer,omitempty"`
+	Amount  float32 `bson:"amount,omitempty"`
+	Price   float32 `bson:"price,omitempty"`
 }
 
 var Blockchain []Block

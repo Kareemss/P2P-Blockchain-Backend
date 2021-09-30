@@ -29,24 +29,25 @@ func main() {
 		BlockchainDatabase := connectToDb("Blockchain")
 
 		if !presentGenesisBlockInDb(BlockchainDatabase) {
-			genesisBlock := Block{0, t.String(), "", "", Order{"I am the genesis block", "", "", 0, 0}, true}
+			genesisBlock := Block{0, t.String(), "", "", Order{0, "I am the genesis block", "", "", 0, 0}, true}
 			genesisBlock.Hash = calculateHash(genesisBlock)
 			Blockchain = append(Blockchain, genesisBlock)
 			addBlock(genesisBlock, BlockchainDatabase)
 		} else {
-			Blockchain = append(Blockchain, getGenesisBlockFromDb(BlockchainDatabase))
+			Blockchain = getBlockchainFromDb(BlockchainDatabase)
 		}
+		Market = getMarketFromDB()
 	}()
 	log.Fatal(run())
 }
 
-func getGenesisBlockFromDb(database *mongo.Database) Block {
+func getBlockchainFromDb(database *mongo.Database) []Block {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var blocks []Block
 
-	cursor, err := database.Collection("Blocks").Find(ctx, bson.M{"is-genesis": bson.D{{"$eq", true}}})
+	cursor, err := database.Collection("Blocks").Find(ctx, bson.M{})
 
 	if err != nil {
 		panic(err)
@@ -55,7 +56,25 @@ func getGenesisBlockFromDb(database *mongo.Database) Block {
 		panic(err)
 	}
 
-	return blocks[0]
+	return blocks
+}
+func getMarketFromDB() []Order {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	MDatabase := connectToDb("Market")
+	MCollection := MDatabase.Collection("Orders")
+	var Orders []Order
+
+	cursor, err := MCollection.Find(ctx, bson.M{})
+
+	if err != nil {
+		panic(err)
+	}
+	if err = cursor.All(ctx, &Orders); err != nil {
+		panic(err)
+	}
+
+	return Orders
 }
 
 func presentGenesisBlockInDb(database *mongo.Database) bool {

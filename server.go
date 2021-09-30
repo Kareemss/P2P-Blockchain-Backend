@@ -182,7 +182,8 @@ func HandleWriteOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
+	NewOrder.OrderID = Market[len(Market)-1].OrderID + 1
+	Market = append(Market, NewOrder)
 	MarketDatabase := connectToDb("Market")
 	AddOrder(NewOrder, MarketDatabase)
 

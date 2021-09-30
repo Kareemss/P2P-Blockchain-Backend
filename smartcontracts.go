@@ -9,17 +9,26 @@ func TransactionSmartContract(Transaction Order) {
 	AddBalance(SellerProfile.Email, "currency-balance", value)
 	AddBalance(BuyerProfile.Email, "energy-balance", Transaction.Amount)
 	AddBalance(BuyerProfile.Email, "currency-balance", -value)
-	UpdateOrder(Transaction.Issuer, Transaction.Amount)
+	UpdateOrder(Transaction.OrderID, Transaction.Amount)
 	SellerProfile.CompletedTransaction += 1
 	BuyerProfile.CompletedTransaction += 1
+	UpdateTransactionCount(SellerProfile.Email,
+		SellerProfile.CompletedTransaction)
+	UpdateTransactionCount(BuyerProfile.Email,
+		BuyerProfile.CompletedTransaction)
 }
 
-func UpdateOrder(Issuer string, TAmount float32) {
-	Order, _ := GetOrder(Issuer)
+func UpdateOrder(OrderID int, TAmount float32) {
+	Order, _ := GetOrder(OrderID)
 	UpdateAmount := Order.Amount - TAmount
-	if UpdateAmount == 0 {
-		DeleteDocFromDB("Market", "Orders", "issuer", Issuer)
+	if UpdateAmount <= 0 {
+		DeleteDocFromDB("Market", "Orders", "_id", OrderID)
 	} else {
-		UpdateFromDB("Market", "Orders", "issuer", Issuer, "amount", UpdateAmount)
+		UpdateFromDB("Market", "Orders", "_id", OrderID, "amount", UpdateAmount)
 	}
+}
+
+func UpdateTransactionCount(Email string, NewCount int) {
+	UpdateFromDB("Users", "Users", "email", Email,
+		"completed-transactions", NewCount)
 }

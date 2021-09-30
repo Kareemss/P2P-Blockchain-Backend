@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	// "go.mongodb.org/mongo-driver/mongo"
 	// "go.mongodb.org/mongo-driver/mongo/options"
 	// "go.mongodb.org/mongo-driver/mongo/readpref"
@@ -82,13 +83,13 @@ func AddBalance(Email string, Asset string, Balance float32) *mongo.UpdateResult
 	return result
 }
 
-func GetOrder(Issuer string) (Order, bool) {
+func GetOrder(OrderID int) (Order, bool) {
 	var result bool
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	MarketDB := connectToDb("Market")
 	OrderCollection := MarketDB.Collection("Orders")
-	filterCursor, err := OrderCollection.Find(ctx, bson.M{"issuer": Issuer})
+	filterCursor, err := OrderCollection.Find(ctx, bson.M{"_id": OrderID})
 	if err != nil {
 		log.Fatal(err)
 		result = false

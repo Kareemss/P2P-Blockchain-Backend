@@ -13,6 +13,7 @@ import (
 
 func calculateHash(block Block) string {
 	record := strconv.Itoa(block.Index) + block.Timestamp +
+		strconv.Itoa(block.AllData.OrderID) +
 		block.AllData.Issuer + block.AllData.Seller +
 		block.AllData.Buyer +
 		fmt.Sprintf("%f", block.AllData.Amount) +
