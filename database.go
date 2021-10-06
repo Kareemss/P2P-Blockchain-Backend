@@ -95,6 +95,14 @@ func AddUser(User User, database *mongo.Database) *mongo.InsertOneResult {
 
 func AddOrder(Order Order, database *mongo.Database) *mongo.InsertOneResult {
 
+	IssuerProfile, _ := GetUser(2, Order.Issuer)
+
+	if Order.Issuer == Order.Seller {
+		AddBalance(IssuerProfile.Email, "energy-balance", -Order.Amount)
+	} else {
+		AddBalance(IssuerProfile.Email, "currency-balance", -Order.Amount*Order.Price)
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
