@@ -5,7 +5,7 @@ import (
 	"os"
 	"time" // the time for our timestamp
 
-	"github.com/davecgh/go-spew/spew"
+	// "github.com/davecgh/go-spew/spew"
 
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -116,7 +116,7 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	if res {
 		newBlockchain := append(Blockchain, newBlock)
 		replaceChain(newBlockchain)
-		spew.Dump(Blockchain)
+		// spew.Dump(Blockchain)
 
 		BlockchainDatabase := connectToDb("Blockchain")
 		addBlock(newBlock, BlockchainDatabase)
