@@ -102,3 +102,15 @@ func GetOrder(OrderID int) (Order, bool) {
 	Order := Orders[0]
 	return Order, result
 }
+
+func DeleteOrder(Order Order) {
+	// Order, _ := GetOrder(OrderID.(int))
+	Issuer, _ := GetUser(2, Order.Issuer)
+	if Order.Issuer == Order.Buyer {
+		Balance := Order.Amount * Order.Price
+		AddBalance(Issuer.Email, "currency-balance", Balance)
+	} else {
+		AddBalance(Issuer.Email, "energy-balance", Order.Amount)
+	}
+
+}

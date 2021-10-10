@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"os"
+	"sync"
 	"time" // the time for our timestamp
 
 	// "github.com/davecgh/go-spew/spew"
@@ -28,6 +29,7 @@ func run() error {
 	http.HandleFunc("/Delete", HandleDeleteFromDB)
 	http.HandleFunc("/AddBalance", HandleAddBalance)
 	http.HandleFunc("/GetUser", HandleGetUser)
+	http.HandleFunc("/DeleteOrder", HandleDeleteOrder)
 
 	// httpAddr := os.Getenv("PORT")
 	// log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
@@ -65,7 +67,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func handleGetMarket(w http.ResponseWriter, r *http.Request) {
-
+	Market = nil
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
 
@@ -94,7 +96,10 @@ func handleGetMarket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var handlerMutex sync.Mutex
+
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
+
 	var Transaction Order
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -106,16 +111,21 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	TransactionSmartContract(Transaction)
-	newBlock, err := generateBlock(Blockchain[len(Blockchain)-1], Transaction)
-	if err != nil {
-		respondWithJSON(w, r, http.StatusInternalServerError, Transaction)
-		return
-	}
+	// defer handlerMutex.Unlock()
+	// TransactionSmartContract(Transaction)
+
+	handlerMutex.Lock()
+
+	newBlock := generateBlock(Blockchain[len(Blockchain)-1], Transaction)
+
 	res, _ := isBlockValid(newBlock, Blockchain[len(Blockchain)-1])
+
 	if res {
-		newBlockchain := append(Blockchain, newBlock)
-		replaceChain(newBlockchain)
+		Blockchain = append(Blockchain, newBlock)
+		handlerMutex.Unlock()
+		TransactionSmartContract(Transaction)
+
+		// replaceChain(newBlockchain)
 		// spew.Dump(Blockchain)
 
 		BlockchainDatabase := connectToDb("Blockchain")
@@ -209,6 +219,7 @@ func HandleDeleteFromDB(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var res interface{}
 	if Deletion.DeletionType == 1 {
+
 		res = DeleteDocFromDB(Deletion.Database, Deletion.Collection, Deletion.Query, Deletion.Condition)
 	} else if Deletion.DeletionType == 2 {
 		DeleteCollection(Deletion.Database, Deletion.Collection)
@@ -217,6 +228,27 @@ func HandleDeleteFromDB(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, r, http.StatusCreated, res)
 
 }
+
+func HandleDeleteOrder(w http.ResponseWriter, r *http.Request) {
+	var Order Order
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS,DELETE,PUT")
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&Order); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+
+	var res interface{}
+	DeleteOrder(Order)
+	res = DeleteDocFromDB("Market", "Orders", "_id", Order.OrderID)
+
+	respondWithJSON(w, r, http.StatusCreated, res)
+}
+
 func HandleAddBalance(w http.ResponseWriter, r *http.Request) {
 	var UpdateBalance UpdateBalanceQuery
 
@@ -238,6 +270,7 @@ type response struct {
 	Email        string
 	PasswordHash string
 	Res          bool
+	User         User
 }
 
 func UserLogin(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +290,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	h.Write([]byte(PasswordHash))
 	hashed := h.Sum(nil)
 	User.PasswordHash = hex.EncodeToString(hashed)
-	Response.Res = ValidateUserLogin(User.Email, User.PasswordHash)
+	Response.Res, Response.User = ValidateUserLogin(User.Email, User.PasswordHash)
 	Response.Email = User.Email
 	Response.PasswordHash = User.PasswordHash
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"time" // the time for our timestamp
+	//"github.com/davecgh/go-spew/spew"
 )
 
 // Now let's create a method for generating a hash of the block
@@ -25,7 +26,7 @@ func calculateHash(block Block) string {
 }
 
 // Create a function for new block generation and return that block
-func generateBlock(oldBlock Block, AllData Order) (Block, error) {
+func generateBlock(oldBlock Block, AllData Order) Block {
 
 	var newBlock Block
 
@@ -36,8 +37,19 @@ func generateBlock(oldBlock Block, AllData Order) (Block, error) {
 	newBlock.AllData = AllData
 	newBlock.PrevHash = oldBlock.Hash
 	newBlock.Hash = calculateHash(newBlock)
+	// // res, _ := isBlockValid(newBlock, Blockchain[len(Blockchain)-1])
+	// // spew.Dump(res)
+	// if true {
+	// 	Blockchain = append(Blockchain, newBlock)
+	// 	// replaceChain(newBlockchain)
+	// 	// spew.Dump(Blockchain)
 
-	return newBlock, nil
+	// 	BlockchainDatabase := connectToDb("Blockchain")
+	// 	addBlock(newBlock, BlockchainDatabase)
+	// 	// spew.Dump(Blockchain)
+	// }
+
+	return newBlock
 }
 
 func isBlockValid(newBlock, oldBlock Block) (bool, int) {
@@ -55,3 +67,14 @@ func isBlockValid(newBlock, oldBlock Block) (bool, int) {
 
 	return true, 0
 }
+
+// func call(){
+// 	for i:= 0; i < 1000; i++ {
+// 		dosomething()
+
+// 	}
+// }
+
+// func dosomething(){
+// 	// Lengthy process
+// }

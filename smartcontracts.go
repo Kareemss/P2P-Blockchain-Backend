@@ -31,6 +31,11 @@ func UpdateOrder(OrderID int, TAmount float32) {
 	UpdateAmount := Order.Amount - TAmount
 	if UpdateAmount <= 0 {
 		DeleteDocFromDB("Market", "Orders", "_id", OrderID)
+		// if len(Market) == 1 {
+		// 	Market = nil
+		// } else {
+		// 	Market = append(Market[:OrderID], Market[OrderID+1])
+		// }
 	} else {
 		UpdateFromDB("Market", "Orders", "_id", OrderID, "amount", UpdateAmount)
 	}

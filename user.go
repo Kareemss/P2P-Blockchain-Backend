@@ -50,7 +50,7 @@ func GetUser(FieldName int, value string) (User, bool) {
 	return Profile, result
 }
 
-func ValidateUserLogin(Email string, PasswordHash string) bool {
+func ValidateUserLogin(Email string, PasswordHash string) (bool, User) {
 	Profile, result := GetUser(1, Email)
 	if Email == Profile.Email && PasswordHash == Profile.PasswordHash {
 		result = true
@@ -58,5 +58,5 @@ func ValidateUserLogin(Email string, PasswordHash string) bool {
 		result = false
 	}
 
-	return result
+	return result, Profile
 }
