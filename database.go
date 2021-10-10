@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -32,10 +33,10 @@ func mongoconnect() {
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
 	cluster := os.Getenv("DB_CLUSTER_ADDR")
-	uri := "mongodb+srv://" + username + ":" + password + "@" + cluster + ".bzh1l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-	// uri := "mongodb://" + username + ":" + password + "@" + cluster +
-	// 	"-shard-00-00.bzh1l.mongodb.net:27017," + cluster + "-shard-00-01.bzh1l.mongodb.net:27017," + cluster +
-	// 	"-shard-00-02.bzh1l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-hmhvdy-shard-0&authSource=admin&retryWrites=true&w=majority"
+	// uri := "mongodb+srv://" + username + ":" + password + "@" + cluster + ".bzh1l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+	uri := "mongodb://" + username + ":" + password + "@" + cluster +
+		"-shard-00-00.bzh1l.mongodb.net:27017," + cluster + "-shard-00-01.bzh1l.mongodb.net:27017," + cluster +
+		"-shard-00-02.bzh1l.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-hmhvdy-shard-0&authSource=admin&retryWrites=true&w=majority"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -67,14 +68,17 @@ func connectToDb(Choice string) *mongo.Database {
 		Database = MarketDatabase
 	}
 
+	MongoDBs.Blockchain = BlockchainDatabase
+	MongoDBs.Market = MarketDatabase
+	MongoDBs.Users = UserDatabase
 	return Database
-	// MongoDBs.Blockchain=BlockchainDatabase
-	// MongoDBs.Market=MarketDatabase
-	// MongoDBs.Users=UserDatabase
 }
 
-func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
+var addBlockMutex sync.Mutex
 
+func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
+	addBlockMutex.Lock()
+	defer addBlockMutex.Unlock()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

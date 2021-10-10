@@ -45,8 +45,8 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	BlockchainDatabase := connectToDb("Blockchain")
-	collection := BlockchainDatabase.Collection("Blocks")
+	// BlockchainDatabase := connectToDb("Blockchain")
+	collection := MongoDBs.Blockchain.Collection("Blocks")
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -74,8 +74,8 @@ func handleGetMarket(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	MarketDatabase := connectToDb("Market")
-	Collection := MarketDatabase.Collection("Orders")
+	// MarketDatabase := connectToDb("Market")
+	Collection := MongoDBs.Market.Collection("Orders")
 
 	cursor, err := Collection.Find(ctx, bson.M{})
 	if err != nil {
@@ -128,8 +128,8 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		// replaceChain(newBlockchain)
 		// spew.Dump(Blockchain)
 
-		BlockchainDatabase := connectToDb("Blockchain")
-		addBlock(newBlock, BlockchainDatabase)
+		// BlockchainDatabase := connectToDb("Blockchain")
+		addBlock(newBlock, MongoDBs.Blockchain)
 		//spew.Dump(Blockchain)
 	}
 
@@ -155,8 +155,8 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 	hashed := h.Sum(nil)
 	NewUser.PasswordHash = hex.EncodeToString(hashed)
 
-	UserDatabase := connectToDb("Users")
-	AddUser(NewUser, UserDatabase)
+	// UserDatabase := connectToDb("Users")
+	AddUser(NewUser, MongoDBs.Users)
 
 	respondWithJSON(w, r, http.StatusCreated, NewUser)
 
@@ -198,8 +198,8 @@ func HandleWriteOrder(w http.ResponseWriter, r *http.Request) {
 		NewOrder.OrderID = Market[len(Market)-1].OrderID + 1
 	}
 	Market = append(Market, NewOrder)
-	MarketDatabase := connectToDb("Market")
-	AddOrder(NewOrder, MarketDatabase)
+	// MarketDatabase := connectToDb("Market")
+	AddOrder(NewOrder, MongoDBs.Market)
 
 	respondWithJSON(w, r, http.StatusCreated, NewOrder)
 

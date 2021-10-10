@@ -87,8 +87,8 @@ func GetOrder(OrderID int) (Order, bool) {
 	var result bool
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	MarketDB := connectToDb("Market")
-	OrderCollection := MarketDB.Collection("Orders")
+	// MarketDB := connectToDb("Market")
+	OrderCollection := MongoDBs.Market.Collection("Orders")
 	filterCursor, err := OrderCollection.Find(ctx, bson.M{"_id": OrderID})
 	if err != nil {
 		log.Fatal(err)

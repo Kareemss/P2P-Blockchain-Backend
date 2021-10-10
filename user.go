@@ -34,8 +34,8 @@ func GetUser(FieldName int, value string) (User, bool) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	UserDatabase := connectToDb("Users")
-	UserCollection := UserDatabase.Collection("Users")
+	// UserDatabase := connectToDb("Users")
+	UserCollection := MongoDBs.Users.Collection("Users")
 	filterCursor, err := UserCollection.Find(ctx, bson.M{Field: value})
 	if err != nil {
 		log.Fatal(err)

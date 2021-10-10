@@ -21,12 +21,13 @@ func main() {
 		log.Fatal(err)
 	}
 	mongoconnect()
+	connectToDb("anything")
 	go func() {
 		t := time.Now()
 
 		// Connecting to MongoDB
 		spew.Dump("Connecting to Server")
-		BlockchainDatabase := connectToDb("Blockchain")
+		BlockchainDatabase := MongoDBs.Blockchain
 
 		if !presentGenesisBlockInDb(BlockchainDatabase) {
 			genesisBlock := Block{0, t.String(), "", "", Order{0, "I am the genesis block", "", "", 0, 0}, true}
@@ -61,8 +62,8 @@ func getBlockchainFromDb(database *mongo.Database) []Block {
 func getMarketFromDB() []Order {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	MDatabase := connectToDb("Market")
-	MCollection := MDatabase.Collection("Orders")
+	// MDatabase := connectToDb("Market")
+	MCollection := MongoDBs.Market.Collection("Orders")
 	var Orders []Order
 
 	cursor, err := MCollection.Find(ctx, bson.M{})
