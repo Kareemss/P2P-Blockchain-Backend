@@ -31,8 +31,6 @@ func run() error {
 	http.HandleFunc("/GetUser", HandleGetUser)
 	http.HandleFunc("/DeleteOrder", HandleDeleteOrder)
 
-	// httpAddr := os.Getenv("PORT")
-	// log.Fatal(http.ListenAndServe(os.Getenv("PORT"), nil))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 	return nil
 }

@@ -37,17 +37,6 @@ func generateBlock(oldBlock Block, AllData Order) Block {
 	newBlock.AllData = AllData
 	newBlock.PrevHash = oldBlock.Hash
 	newBlock.Hash = calculateHash(newBlock)
-	// // res, _ := isBlockValid(newBlock, Blockchain[len(Blockchain)-1])
-	// // spew.Dump(res)
-	// if true {
-	// 	Blockchain = append(Blockchain, newBlock)
-	// 	// replaceChain(newBlockchain)
-	// 	// spew.Dump(Blockchain)
-
-	// 	BlockchainDatabase := connectToDb("Blockchain")
-	// 	addBlock(newBlock, BlockchainDatabase)
-	// 	// spew.Dump(Blockchain)
-	// }
 
 	return newBlock
 }
@@ -67,14 +56,3 @@ func isBlockValid(newBlock, oldBlock Block) (bool, int) {
 
 	return true, 0
 }
-
-// func call(){
-// 	for i:= 0; i < 1000; i++ {
-// 		dosomething()
-
-// 	}
-// }
-
-// func dosomething(){
-// 	// Lengthy process
-// }

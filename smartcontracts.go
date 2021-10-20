@@ -13,10 +13,6 @@ func TransactionSmartContract(Transaction Order) {
 		AddBalance(SellerProfile.Email, "currency-balance", value)
 		AddBalance(BuyerProfile.Email, "energy-balance", Transaction.Amount)
 	}
-	// AddBalance(SellerProfile.Email, "energy-balance", -Transaction.Amount)
-	// AddBalance(SellerProfile.Email, "currency-balance", value)
-	// AddBalance(BuyerProfile.Email, "energy-balance", Transaction.Amount)
-	// AddBalance(BuyerProfile.Email, "currency-balance", -value)
 	UpdateOrder(Transaction.OrderID, Transaction.Amount)
 	SellerProfile.CompletedTransaction += 1
 	BuyerProfile.CompletedTransaction += 1
@@ -31,11 +27,7 @@ func UpdateOrder(OrderID int, TAmount float32) {
 	UpdateAmount := Order.Amount - TAmount
 	if UpdateAmount <= 0 {
 		DeleteDocFromDB("Market", "Orders", "_id", OrderID)
-		// if len(Market) == 1 {
-		// 	Market = nil
-		// } else {
-		// 	Market = append(Market[:OrderID], Market[OrderID+1])
-		// }
+
 	} else {
 		UpdateFromDB("Market", "Orders", "_id", OrderID, "amount", UpdateAmount)
 	}
@@ -44,4 +36,16 @@ func UpdateOrder(OrderID int, TAmount float32) {
 func UpdateTransactionCount(Email string, NewCount int) {
 	UpdateFromDB("Users", "Users", "email", Email,
 		"completed-transactions", NewCount)
+}
+
+func DeleteOrder(Order Order) {
+	// Order, _ := GetOrder(OrderID.(int))
+	Issuer, _ := GetUser(2, Order.Issuer)
+	if Order.Issuer == Order.Buyer {
+		Balance := Order.Amount * Order.Price
+		AddBalance(Issuer.Email, "currency-balance", Balance)
+	} else {
+		AddBalance(Issuer.Email, "energy-balance", Order.Amount)
+	}
+
 }

@@ -57,6 +57,5 @@ func ValidateUserLogin(Email string, PasswordHash string) (bool, User) {
 	} else {
 		result = false
 	}
-
 	return result, Profile
 }
