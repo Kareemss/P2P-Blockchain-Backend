@@ -94,19 +94,24 @@ func addBlock(block Block, database *mongo.Database) *mongo.InsertOneResult {
 	return insertionResult
 }
 
-func AddUser(User User, database *mongo.Database) *mongo.InsertOneResult {
+func AddUser(User User, database *mongo.Database) bool {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	Users := database.Collection("Users")
-
-	insertionResult, err := Users.InsertOne(ctx, User)
+	_, res1 := GetUser(1, User.Email)
+	_, res2 := GetUser(1, User.UserName)
+	if (res1 && res2) == false {
+		return false
+	}
+	_, err := Users.InsertOne(ctx, User)
 	if err != nil {
 		panic(err)
 	}
-
-	return insertionResult
+	AddBalance(User.Email, "currency-balance", 1000)
+	AddBalance(User.Email, "energy-balance", 1000)
+	return true
 }
 
 func AddOrder(Order Order, database *mongo.Database) *mongo.InsertOneResult {
