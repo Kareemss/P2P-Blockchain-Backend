@@ -154,9 +154,9 @@ func HandleWriteUser(w http.ResponseWriter, r *http.Request) {
 	NewUser.PasswordHash = hex.EncodeToString(hashed)
 
 	// UserDatabase := connectToDb("Users")
-	AddUser(NewUser, MongoDBs.Users)
+	DupResult := AddUser(NewUser, MongoDBs.Users)
 
-	respondWithJSON(w, r, http.StatusCreated, NewUser)
+	respondWithJSON(w, r, http.StatusCreated, DupResult)
 
 }
 
