@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -27,6 +28,7 @@ type User struct {
 func GetUser(FieldName int, value string) (User, bool) {
 	var result bool
 	var Field string
+	var Profile User
 	if FieldName == 1 {
 		Field = "email"
 	} else if FieldName == 2 {
@@ -46,7 +48,15 @@ func GetUser(FieldName int, value string) (User, bool) {
 		log.Fatal(err)
 		result = false
 	}
-	Profile := Profiles[0]
+	if len(Profiles) != 0 {
+		Profile = Profiles[0]
+		result = false
+	} else {
+		result = true
+		spew.Dump(result)
+	}
+	// Profile := Profiles[0]
+
 	return Profile, result
 }
 
